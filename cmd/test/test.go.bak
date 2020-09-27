@@ -1,0 +1,43 @@
+package test
+
+import (
+	"fmt"
+	"strconv"
+)
+
+func main() {
+	a := "hello"
+	b := "hello"
+	c := &a
+	d := &b
+	fmt.Println("a == b : " + strconv.FormatBool(a == b))
+	fmt.Println("c == d : " + strconv.FormatBool(c == d))
+
+	a1 := 10
+	b1 := "b1"
+	h1 := Hello1{A: a1, B: b1}
+
+	a11 := 10
+	b11 := "b1"
+	h11 := Hello1{A: a11, B: b11}
+	m1 := make(map[Hello1]string)
+	m1[h1] = "hello1"
+	fmt.Println("result1: " + m1[h11])
+
+	h2 := Hello2{C: &a1, D: &b1}
+	h21 := Hello2{C: &a11, D: &b11}
+	m2 := make(map[Hello2]string)
+	m2[h2] = "world"
+	fmt.Println("result2: " + m2[h21])
+
+}
+
+type Hello1 struct {
+	A int
+	B string
+}
+
+type Hello2 struct {
+	C *int
+	D *string
+}
