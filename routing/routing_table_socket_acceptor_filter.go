@@ -19,7 +19,7 @@ func (routingTableSocketAcceptorFilter RoutingTableSocketAcceptorFilter) Filter(
 	chain *socketacceptor.SocketAcceptorFilterChain) filter.Success {
 	routeSetup := exchange.GetMetadata()
 	sendingSocket := exchange.GetSendingSocket()
-	routingTableSocketAcceptorFilter.routingTable.RegisterByTagsAndRSocket(&routeSetup.TagsMetadata, &sendingSocket)
+	routingTableSocketAcceptorFilter.routingTable.RegisterByTagsAndRSocket(routeSetup.TagsMetadata, sendingSocket)
 	return chain.Filter(exchange)
 }
 

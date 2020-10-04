@@ -14,6 +14,8 @@ github.com/jjeffcaii/reactor-go v0.1.3 h1:HPvOkeoH1Z11t0TlWIyYuQkbSG/9/e3LgTN4Qu
 github.com/jjeffcaii/reactor-go v0.1.3/go.mod h1:I4qZrpZcsqjzo3pjq0XWGBTpdFXB95XeYinrPYETNL4=
 github.com/jjeffcaii/reactor-go v0.2.3 h1:qkcnnNyJ241hq15EMjGXP/mtqxRQlITy7eed2qzZdYQ=
 github.com/jjeffcaii/reactor-go v0.2.3/go.mod h1:I4qZrpZcsqjzo3pjq0XWGBTpdFXB95XeYinrPYETNL4=
+github.com/jjeffcaii/reactor-go v0.2.6 h1:3jXKe2bLfODb9RHXjaVCUZnPwDr6G9//FIvyNLGtbXM=
+github.com/jjeffcaii/reactor-go v0.2.6/go.mod h1:I4qZrpZcsqjzo3pjq0XWGBTpdFXB95XeYinrPYETNL4=
 github.com/panjf2000/ants/v2 v2.4.1 h1:7RtUqj5lGOw0WnZhSKDZ2zzJhaX5490ZW1sUolRXCxY=
 github.com/panjf2000/ants/v2 v2.4.1/go.mod h1:f6F0NZVFsGCp5A7QW/Zj/m92atWwOkY0OIhFxRNFr4A=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
@@ -26,6 +28,8 @@ github.com/rsocket/rsocket-go v0.5.13 h1:cEpPLxnqiDkhJoZqgK1rMhgoNzIwnbhGbZyHIIP
 github.com/rsocket/rsocket-go v0.5.13/go.mod h1:3yi0ilhkGUDVStDgdv07rAOsU1fPtv8aMpSCsKxoYa8=
 github.com/rsocket/rsocket-go v0.6.0 h1:0I25/q5UPqKUVpF3BJ+cAtaqOBOwpafB6Ov2ksagEx4=
 github.com/rsocket/rsocket-go v0.6.0/go.mod h1:k06VNhyx3azJ0hDEKthV6vmRzr7G189igfb2lex9Msg=
+github.com/rsocket/rsocket-go v0.6.5 h1:YpvuvBCV9xneiGVjCeY/R/LtDY7Unpn2Wgws38rNEKE=
+github.com/rsocket/rsocket-go v0.6.5/go.mod h1:WIDY70DXmJEG4jbrLgGJA0/1Sksbfha9Rz0iwTyfK3c=
 github.com/russross/blackfriday/v2 v2.0.1/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/shurcooL/sanitized_anchor_name v1.0.0/go.mod h1:1NzhyTcUVG4SuEtjjoZeVRXNmyL/1OwPU0+IJeTBvfc=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

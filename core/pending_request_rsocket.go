@@ -17,8 +17,8 @@ import (
 type PendingRequestRSocket struct {
 	routeFinder            func(routing.RegisteredEvent) *route.Route
 	metadataExtractor      metadata.MetadataExtractor
-	metadataCallback       func(*metadata.TagsMetadata)
-	rSocketProcessor       *rsocket.RSocket
+	metadataCallback       func(metadata.TagsMetadata)
+	rSocketProcessor       rsocket.RSocket
 	subscriptionDisposable *context.Context
 	route                  *route.Route
 }
@@ -26,7 +26,7 @@ type PendingRequestRSocket struct {
 func NewPendingRequestRSocket(
 	metadataExtractor metadata.MetadataExtractor,
 	routeFinder func(routing.RegisteredEvent) *route.Route,
-	metadataCallback func(*metadata.TagsMetadata)) *PendingRequestRSocket {
+	metadataCallback func(metadata.TagsMetadata)) *PendingRequestRSocket {
 
 	return &PendingRequestRSocket{routeFinder, metadataExtractor, metadataCallback, nil, nil, nil}
 }
@@ -45,7 +45,7 @@ func (pendingRequestRSocket *PendingRequestRSocket) Processor(logCategory string
 	exchange := FromPayload(RequestStream, p, pendingRequestRSocket.metadataExtractor)
 	exchange.GetAttributes()[RouteAttr] = pendingRequestRSocket.rSocketProcessor
 	successFlag := ExecuteFilterChain((*pendingRequestRSocket.route).GetFilters(), *exchange)
-	return *pendingRequestRSocket.rSocketProcessor, successFlag
+	return pendingRequestRSocket.rSocketProcessor, successFlag
 }
 
 // FireAndForget is a single one-way message.

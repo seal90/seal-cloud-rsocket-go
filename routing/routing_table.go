@@ -38,7 +38,7 @@ func NewRoutingTable() RoutingTable {
 
 // func (routingTable *RoutingTable)
 
-func (routingTable *RoutingTable) RegisterByTagsAndRSocket(tagsMetadata *metadata.TagsMetadata, rsocket *rsocket.RSocket) {
+func (routingTable *RoutingTable) RegisterByTagsAndRSocket(tagsMetadata metadata.TagsMetadata, rsocket rsocket.RSocket) {
 	routingTable.RegisterByRouteEntry(&RouteEntry{rsocket, tagsMetadata, time.Now().Unix()})
 }
 
@@ -158,14 +158,14 @@ func (routingTable *RoutingTable) FindRouteIds(tagsMetadata *metadata.TagsMetada
 
 type RouteRsocketInfo struct {
 	routeId string
-	rSocket *rsocket.RSocket
+	rSocket rsocket.RSocket
 }
 
 func (routeRsocketInfo *RouteRsocketInfo) GetRouteID() string {
 	return routeRsocketInfo.routeId
 }
 
-func (routeRsocketInfo *RouteRsocketInfo) GetRSocket() *rsocket.RSocket {
+func (routeRsocketInfo *RouteRsocketInfo) GetRSocket() rsocket.RSocket {
 	return routeRsocketInfo.rSocket
 }
 
@@ -176,14 +176,14 @@ type TagKey struct {
 }
 
 type RouteEntry struct {
-	rSocket *rsocket.RSocket
+	rSocket rsocket.RSocket
 
-	tagsMetadata *metadata.TagsMetadata
+	tagsMetadata metadata.TagsMetadata
 
 	timestamp int64
 }
 
-func (routeEntry *RouteEntry) GetRSocket() *rsocket.RSocket {
+func (routeEntry *RouteEntry) GetRSocket() rsocket.RSocket {
 	return routeEntry.rSocket
 }
 
@@ -199,10 +199,10 @@ type RegisteredEvent struct {
 	RouteEntry *RouteEntry
 }
 
-func (event *RegisteredEvent) GetRoutingMetadata() *metadata.TagsMetadata {
+func (event *RegisteredEvent) GetRoutingMetadata() metadata.TagsMetadata {
 	return event.RouteEntry.tagsMetadata
 }
 
-func (event *RegisteredEvent) GetRSocket() *rsocket.RSocket {
+func (event *RegisteredEvent) GetRSocket() rsocket.RSocket {
 	return event.RouteEntry.rSocket
 }

@@ -33,7 +33,7 @@ func (factory *PendingRequestRSocketFactory) ConstructPendingRSocket(exchange Ga
 		return factory.GetRoute(registeredEvent, exchange)
 	}
 
-	tagsMetadataConsumer := func(tagsMetadata *metadata.TagsMetadata) {
+	tagsMetadataConsumer := func(tagsMetadata metadata.TagsMetadata) {
 		// tags := exchange.GetTags().and("responder.id", tagsMetadata.GetRouteId())
 		// exchange.SetTags(tags)
 	}
@@ -46,8 +46,8 @@ func (factory *PendingRequestRSocketFactory) GetRoute(registeredEvent routing.Re
 
 }
 
-func (factory *PendingRequestRSocketFactory) MatchRoute(r route.Route, tagsMetadata *metadata.TagsMetadata) *route.Route {
-	routeIds := factory.routingTable.FindRouteIds(tagsMetadata)
+func (factory *PendingRequestRSocketFactory) MatchRoute(r route.Route, tagsMetadata metadata.TagsMetadata) *route.Route {
+	routeIds := factory.routingTable.FindRouteIds(&tagsMetadata)
 	if Contains(routeIds, r.GetId()) {
 		return &r
 	}

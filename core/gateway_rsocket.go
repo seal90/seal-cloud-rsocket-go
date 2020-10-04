@@ -60,9 +60,7 @@ func (gatewayRSocket *GatewayRSocket) RequestResponse(msg payload.Payload) mono.
 	exchange := gatewayRSocket.CreateExchange(RequestResponse, msg)
 	rSockets := gatewayRSocket.FindRSocketOrCreatePending(*exchange)
 	for rs := rSockets.Front(); nil != rs; rs = rs.Next() {
-		s := rs.Value.(*rsocket.RSocket)
-		ss := *s
-		return ss.RequestResponse(msg)
+		return rs.Value.(rsocket.RSocket).RequestResponse(msg)
 	}
 	return mono.Empty()
 }

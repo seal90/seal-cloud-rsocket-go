@@ -9,13 +9,13 @@ import (
 )
 
 type RoutingTableRoutes struct {
-	routes       map[string]*route.Route
+	routes       map[string]route.Route
 	routingTable RoutingTable
 }
 
 func NewRoutingTableRoutes(routingTable RoutingTable) RoutingTableRoutes {
 	return RoutingTableRoutes{
-		make(map[string]*route.Route),
+		make(map[string]route.Route),
 		routingTable,
 	}
 }
@@ -47,7 +47,7 @@ func (routingTableRoutes *RoutingTableRoutes) Accept(registeredEvent RegisteredE
 	routingMetadata := registeredEvent.GetRoutingMetadata()
 	routeId := routingMetadata.GetRouteID()
 	registryRoute := routingTableRoutes.CreateRoute(routeId)
-	routingTableRoutes.routes[routeId] = &registryRoute
+	routingTableRoutes.routes[routeId] = registryRoute
 
 }
 

@@ -6,6 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	metrics "github.com/rcrowley/go-metrics"
 
@@ -22,7 +26,38 @@ import (
 func main() {
 
 	closeContext := context.Background()
-	canelContext, _ := context.WithCancel(closeContext)
+	canelContext, cancel := context.WithCancel(closeContext)
+
+	// 创建监听退出chan
+	c := make(chan os.Signal)
+	done := make(chan bool)
+	//监听指定信号 ctrl+c kill
+	signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM,
+		syscall.SIGQUIT)
+
+	go func() {
+		moreInterrupt := false
+		for s := range c {
+			switch s {
+			case syscall.SIGINT:
+				if moreInterrupt {
+					fmt.Println("Program Exit more ...", s)
+					done <- true
+				} else {
+					moreInterrupt = true
+					fmt.Println("Program Exit...", s)
+
+					cancel()
+				}
+			case syscall.SIGHUP, syscall.SIGTERM, syscall.SIGQUIT:
+				fmt.Println("Program Exit...", s)
+				time.Sleep(time.Duration(10 * time.Second))
+				cancel()
+			default:
+				fmt.Println("other signal", s)
+			}
+		}
+	}()
 
 	metadataExtractor := metadata.DefaultMetadataExtractor{}
 
@@ -50,66 +85,61 @@ func main() {
 
 	gatewayRSocketFactory := core.NewGatewayRSocketFactory(routingTable, routingTableRoutes, pendingFactory,
 		loadBalancerFactory, meterRegistry, *brokerProperties, metadataExtractor)
-	// go func() {
-	err := rsocket.Receive().
-		OnStart(func() {
-			log.Println("============start==============")
-		}).
-		Resume().
-		Fragment(1024).
-		Acceptor(func(setup payload.SetupPayload, sendingSocket rsocket.CloseableRSocket) (rsocket.RSocket, error) {
 
-			mimeType := setup.MetadataMimeType()
-			mime, ok := extension.ParseMIME(mimeType)
-			if !ok {
-				return nil, errors.New("not support mime type: " + mimeType)
-			}
-			metadataMap, _ := metadataExtractor.Extract(setup, mime.String())
+	go func() {
+		err := rsocket.Receive().
+			OnStart(func() {
+				log.Println("============start==============")
+			}).
+			Resume().
+			Fragment(1024).
+			Acceptor(func(setup payload.SetupPayload, sendingSocket rsocket.CloseableRSocket) (rsocket.RSocket, error) {
 
-			routeSetupMetadata := metadataMap[metadata.RouteSetupMetadata]
-			var exchange socketacceptor.SocketAcceptorExchange
-			if nil != routeSetupMetadata {
-				exchange = socketacceptor.SocketAcceptorExchange{
-					Setup:         setup,
-					SendingSocket: sendingSocket,
-					Metadata:      routeSetupMetadata.(metadata.RouteSetup),
+				mimeType := setup.MetadataMimeType()
+				mime, ok := extension.ParseMIME(mimeType)
+				if !ok {
+					return nil, errors.New("not support mime type: " + mimeType)
 				}
-			} else {
-				exchange = socketacceptor.SocketAcceptorExchange{
-					Setup:         setup,
-					SendingSocket: sendingSocket,
-					Metadata:      metadata.RouteSetup{},
+				metadataMap, _ := metadataExtractor.Extract(setup, mime.String())
+
+				routeSetupMetadata := metadataMap[metadata.RouteSetupMetadata]
+				var exchange socketacceptor.SocketAcceptorExchange
+				if nil != routeSetupMetadata {
+					exchange = socketacceptor.SocketAcceptorExchange{
+						Setup:         setup,
+						SendingSocket: sendingSocket,
+						Metadata:      routeSetupMetadata.(metadata.RouteSetup),
+					}
+				} else {
+					exchange = socketacceptor.SocketAcceptorExchange{
+						Setup:         setup,
+						SendingSocket: sendingSocket,
+						Metadata:      metadata.RouteSetup{},
+					}
 				}
-			}
-			doFilterResult := filterChain.Filter(&exchange)
-			fmt.Println(doFilterResult)
+				doFilterResult := filterChain.Filter(&exchange)
+				fmt.Println(doFilterResult)
 
-			tags := exchange.GetMetadata().GetEnrichedTagsMetadata()
-			// bind responder
-			return gatewayRSocketFactory.Create(&tags)
-			// return rsocket.NewAbstractSocket(
-			// 	rsocket.RequestResponse(func(msg payload.Payload) mono.Mono {
-			// 		log.Println("response:", msg)
-			// 		return mono.Just(msg)
-			// 	}),
-			// ), nil
-		}).
-		Transport(rsocket.TCPServer().SetAddr(":7002").Build()).
-		// Transport("tcp://127.0.0.1:7002").
-		Serve(canelContext)
-	log.Println(err)
-	panic(err)
-	// }()
-	// time.Sleep(time.Duration(10) * time.Second)
+				tags := exchange.GetMetadata().GetEnrichedTagsMetadata()
+				// bind responder
+				return gatewayRSocketFactory.Create(&tags)
+				// return rsocket.NewAbstractSocket(
+				// 	rsocket.RequestResponse(func(msg payload.Payload) mono.Mono {
+				// 		log.Println("response:", msg)
+				// 		return mono.Just(msg)
+				// 	}),
+				// ), nil
+			}).
+			Transport(rsocket.TCPServer().SetAddr(":7002").Build()).
+			// Transport("tcp://127.0.0.1:7002").
+			Serve(canelContext)
+		done <- true
+		log.Println("============rsocket done==============")
+		if nil != err {
+			panic(err)
+		}
 
-	// closeChan := canelContext.Done()
-
-	// if nil == closeChan {
-	// 	log.Println("============start  1==============")
-	// 	errInfo := canelContext.Err()
-	// 	log.Println(errInfo)
-	// } else {
-	// 	log.Println("============start  2==============")
-	// 	log.Println("============start  3==============")
-	// }
+	}()
+	<-done
+	log.Println("============main done==============")
 }
