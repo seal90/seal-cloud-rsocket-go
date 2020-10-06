@@ -121,17 +121,9 @@ func main() {
 				fmt.Println(doFilterResult)
 
 				tags := exchange.GetMetadata().GetEnrichedTagsMetadata()
-				// bind responder
 				return gatewayRSocketFactory.Create(&tags)
-				// return rsocket.NewAbstractSocket(
-				// 	rsocket.RequestResponse(func(msg payload.Payload) mono.Mono {
-				// 		log.Println("response:", msg)
-				// 		return mono.Just(msg)
-				// 	}),
-				// ), nil
 			}).
 			Transport(rsocket.TCPServer().SetAddr(":7002").Build()).
-			// Transport("tcp://127.0.0.1:7002").
 			Serve(canelContext)
 		done <- true
 		log.Println("============rsocket done==============")
