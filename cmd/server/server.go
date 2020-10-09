@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	metrics "github.com/rcrowley/go-metrics"
 
@@ -51,7 +50,6 @@ func main() {
 				}
 			case syscall.SIGHUP, syscall.SIGTERM, syscall.SIGQUIT:
 				fmt.Println("Program Exit...", s)
-				time.Sleep(time.Duration(10 * time.Second))
 				cancel()
 			default:
 				fmt.Println("other signal", s)
