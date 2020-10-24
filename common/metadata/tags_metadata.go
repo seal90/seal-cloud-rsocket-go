@@ -28,16 +28,16 @@ func NewTagsMetadata() *TagsMetadata {
 	return &TagsMetadata{tags}
 }
 
-func (metadata *TagsMetadata) AddKeyTag(key TagsMetadataKey, val *string) {
-	metadata.tags[key] = *val
+func (metadata *TagsMetadata) AddKeyTag(key TagsMetadataKey, val string) {
+	metadata.tags[key] = val
 }
 
-func (metadata *TagsMetadata) AddStringTag(key string, val *string) {
-	metadata.tags[TagsMetadataKey{WellKnownKey(0), key}] = *val
+func (metadata *TagsMetadata) AddStringTag(key string, val string) {
+	metadata.tags[TagsMetadataKey{WellKnownKey(0), key}] = val
 }
 
-func (metadata *TagsMetadata) AddWellKnownKeyTag(key WellKnownKey, val *string) {
-	metadata.tags[TagsMetadataKey{key, ""}] = *val
+func (metadata *TagsMetadata) AddWellKnownKeyTag(key WellKnownKey, val string) {
+	metadata.tags[TagsMetadataKey{key, ""}] = val
 }
 
 func (metadata *TagsMetadata) Encode() []byte {
@@ -181,8 +181,8 @@ func DecodeRouteSetup(bytes []byte) RouteSetup {
 	serviceName, offset := DecodeString(16, bytes)
 	idStr := id.String()
 	tags := DecodeOffset(offset, bytes)
-	tags.AddWellKnownKeyTag(RouteID, &idStr)
-	tags.AddWellKnownKeyTag(ServiceName, &serviceName)
+	tags.AddWellKnownKeyTag(RouteID, idStr)
+	tags.AddWellKnownKeyTag(ServiceName, serviceName)
 	setup := RouteSetup{ID: id, ServiceName: &serviceName, TagsMetadata: tags}
 	// tagsMetadata.addWellKnownKeyTag(RouteID, &id)
 	// tagsMetadata.addWellKnownKeyTag(ServiceName, &serviceName)

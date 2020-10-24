@@ -20,6 +20,10 @@ func (routingTableSocketAcceptorFilter RoutingTableSocketAcceptorFilter) Filter(
 	routeSetup := exchange.GetMetadata()
 	sendingSocket := exchange.GetSendingSocket()
 	routingTableSocketAcceptorFilter.routingTable.RegisterByTagsAndRSocket(routeSetup.TagsMetadata, sendingSocket)
+	// This is different from the original treatment
+	sendingSocket.OnClose(func(e error) {
+		routingTableSocketAcceptorFilter.routingTable.Deregister(routeSetup.TagsMetadata)
+	})
 	return chain.Filter(exchange)
 }
 

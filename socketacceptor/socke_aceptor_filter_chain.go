@@ -61,7 +61,7 @@ func (socketAcceptorExchange *SocketAcceptorExchange) GetMetadata() metadata.Rou
 	return socketAcceptorExchange.Metadata
 }
 
-func (socketAcceptorExchange *SocketAcceptorExchange) GetSendingSocket() rsocket.RSocket {
+func (socketAcceptorExchange *SocketAcceptorExchange) GetSendingSocket() rsocket.CloseableRSocket {
 	return socketAcceptorExchange.SendingSocket
 }
 

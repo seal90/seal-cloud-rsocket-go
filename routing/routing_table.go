@@ -70,11 +70,11 @@ func (routingTable *RoutingTable) RegisterByRouteEntry(routeEntry *RouteEntry) e
 	return nil
 }
 
-func (routingTable *RoutingTable) Deregister(tags *metadata.TagsMetadata) bool {
+func (routingTable *RoutingTable) Deregister(tags metadata.TagsMetadata) bool {
 	routeID := tags.GetRouteID()
 
 	findByRouteId := metadata.NewTagsMetadata()
-	findByRouteId.AddWellKnownKeyTag(metadata.RouteID, nil)
+	findByRouteId.AddWellKnownKeyTag(metadata.RouteID, routeID)
 
 	found := routingTable.Find(findByRouteId)
 	if found.IsEmpty() || found.GetCardinality() > 1 {

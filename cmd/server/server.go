@@ -92,7 +92,7 @@ func main() {
 				log.Println("============start==============")
 			}).
 			Resume().
-			Fragment(1024).
+			// Fragment(1024).
 			Acceptor(func(setup payload.SetupPayload, sendingSocket rsocket.CloseableRSocket) (rsocket.RSocket, error) {
 
 				mimeType := setup.MetadataMimeType()
