@@ -24,6 +24,8 @@ import (
 
 func main() {
 
+	listenAddr := ":7002"
+
 	closeContext := context.Background()
 	canelContext, cancel := context.WithCancel(closeContext)
 
@@ -121,7 +123,7 @@ func main() {
 				tags := exchange.GetMetadata().GetEnrichedTagsMetadata()
 				return gatewayRSocketFactory.Create(&tags)
 			}).
-			Transport(rsocket.TCPServer().SetAddr(":7002").Build()).
+			Transport(rsocket.TCPServer().SetAddr(listenAddr).Build()).
 			Serve(canelContext)
 		done <- true
 		log.Println("============rsocket done==============")
