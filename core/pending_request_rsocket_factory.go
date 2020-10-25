@@ -23,8 +23,8 @@ func NewPendingRequestRSocketFactory(
 
 func (factory *PendingRequestRSocketFactory) Create(exchange GatewayExchange) *PendingRequestRSocket {
 	pending := factory.ConstructPendingRSocket(exchange)
-	// disposable := factory.routingTable.AddListener(pending)
-	// pending.SetSubscriptionDisposable(disposable)
+	disposable := factory.routingTable.AddListener(pending.Accept)
+	pending.SetSubscriptionDisposable(disposable)
 	return pending
 }
 

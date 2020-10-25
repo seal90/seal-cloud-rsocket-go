@@ -1,8 +1,6 @@
 package core
 
 import (
-	"context"
-
 	"github.com/rsocket/rsocket-go"
 	"github.com/rsocket/rsocket-go/payload"
 	"github.com/rsocket/rsocket-go/rx"
@@ -19,8 +17,9 @@ type PendingRequestRSocket struct {
 	metadataExtractor      metadata.MetadataExtractor
 	metadataCallback       func(metadata.TagsMetadata)
 	rSocketProcessor       rsocket.RSocket
-	subscriptionDisposable *context.Context
+	subscriptionDisposable *routing.RoutingTableRegisteredEventDispose
 	route                  *route.Route
+	pendingChannel         chan bool
 }
 
 func NewPendingRequestRSocket(
@@ -28,7 +27,7 @@ func NewPendingRequestRSocket(
 	routeFinder func(routing.RegisteredEvent) *route.Route,
 	metadataCallback func(metadata.TagsMetadata)) *PendingRequestRSocket {
 
-	return &PendingRequestRSocket{routeFinder, metadataExtractor, metadataCallback, nil, nil, nil}
+	return &PendingRequestRSocket{routeFinder, metadataExtractor, metadataCallback, nil, nil, nil, make(chan bool)}
 }
 
 func (pendingRequestRSocket *PendingRequestRSocket) Accept(registeredEvent routing.RegisteredEvent) {
@@ -37,11 +36,13 @@ func (pendingRequestRSocket *PendingRequestRSocket) Accept(registeredEvent routi
 	pendingRequestRSocket.metadataCallback(registeredEvent.GetRoutingMetadata())
 	pendingRequestRSocket.rSocketProcessor = registeredEvent.GetRSocket()
 	if nil != pendingRequestRSocket.subscriptionDisposable {
-		(*pendingRequestRSocket.subscriptionDisposable).Done()
+		pendingRequestRSocket.subscriptionDisposable.Done()
 	}
+	pendingRequestRSocket.pendingChannel <- false
 }
 
 func (pendingRequestRSocket *PendingRequestRSocket) Processor(logCategory string, p payload.Payload) (rsocket.RSocket, filter.Success) {
+	<-pendingRequestRSocket.pendingChannel
 	exchange := FromPayload(RequestStream, p, pendingRequestRSocket.metadataExtractor)
 	exchange.GetAttributes()[RouteAttr] = pendingRequestRSocket.rSocketProcessor
 	successFlag := ExecuteFilterChain((*pendingRequestRSocket.route).GetFilters(), *exchange)
@@ -83,6 +84,6 @@ func (pendingRequestRSocket *PendingRequestRSocket) RequestChannel(messages rx.P
 
 }
 
-// func (pendingRequestRSocket *PendingRequestRSocket) SetSubscriptionDisposable(subscriptionDisposable Disposable) {
-// 	pendingRequestRSocket.subscriptionDisposable = subscriptionDisposable
-// }
+func (pendingRequestRSocket *PendingRequestRSocket) SetSubscriptionDisposable(subscriptionDisposable *routing.RoutingTableRegisteredEventDispose) {
+	pendingRequestRSocket.subscriptionDisposable = subscriptionDisposable
+}

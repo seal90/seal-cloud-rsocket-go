@@ -12,18 +12,24 @@ import (
 )
 
 type RoutingTable struct {
-	internalRouteID uint32
-
+	internalRouteID          uint32
 	internalRouteIDToRouteID map[uint32]string
-
-	tagsToBitmaps map[TagKey]*gocroaring.Bitmap
-
-	routeEntries map[string]*RouteEntry
+	tagsToBitmaps            map[TagKey]*gocroaring.Bitmap
+	routeEntries             map[string]*RouteEntry
 
 	// DirectProcessor<RegisteredEvent> registeredEvents
-	registeredEvents *list.List
-
+	registeredEvents    map[uint64]func(RegisteredEvent)
+	registeredEventFlag uint64
 	// FluxSink<RegisteredEvent> registeredEventsSink
+}
+
+type RoutingTableRegisteredEventDispose struct {
+	routingTable        *RoutingTable
+	registeredEventFlag uint64
+}
+
+func (r *RoutingTableRegisteredEventDispose) Done() {
+	delete(r.routingTable.registeredEvents, r.registeredEventFlag)
 }
 
 func NewRoutingTable() RoutingTable {
@@ -32,7 +38,8 @@ func NewRoutingTable() RoutingTable {
 		make(map[uint32]string),
 		make(map[TagKey]*gocroaring.Bitmap),
 		make(map[string]*RouteEntry),
-		list.New(),
+		make(map[uint64]func(RegisteredEvent)),
+		0,
 	}
 }
 
@@ -66,6 +73,10 @@ func (routingTable *RoutingTable) RegisterByRouteEntry(routeEntry *RouteEntry) e
 			bitmap = gocroaring.New(internalRouteID)
 			routingTable.tagsToBitmaps[tagKey] = bitmap
 		}
+	}
+	for _, register := range routingTable.registeredEvents {
+		event := RegisteredEvent{routeEntry}
+		register(event)
 	}
 	return nil
 }
@@ -152,9 +163,12 @@ func (routingTable *RoutingTable) FindRouteIds(tagsMetadata *metadata.TagsMetada
 	return listRoutes
 }
 
-// func (routingTable *RoutingTable) AddListener(consumer RegisteredEvent) Disposable {
-// 	return routingTable.registeredEvents.subscribe(consumer)
-// }
+func (routingTable *RoutingTable) AddListener(event func(RegisteredEvent)) *RoutingTableRegisteredEventDispose {
+	flag := atomic.AddUint64(&routingTable.registeredEventFlag, 1)
+	routingTable.registeredEvents[flag] = event
+
+	return &RoutingTableRegisteredEventDispose{routingTable, flag}
+}
 
 type RouteRsocketInfo struct {
 	routeId string

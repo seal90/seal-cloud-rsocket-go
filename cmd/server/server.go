@@ -91,7 +91,7 @@ func main() {
 			OnStart(func() {
 				log.Println("============start==============")
 			}).
-			// Resume().
+			Resume().
 			// Fragment(1024).
 			Acceptor(func(setup payload.SetupPayload, sendingSocket rsocket.CloseableRSocket) (rsocket.RSocket, error) {
 
